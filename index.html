@@ -60,9 +60,9 @@
     <div class="field">
       <label>卒業年</label>
       <select id="sotsunen" required>
-        <option value="">選択してください</option>
+        <option value="2027" selected>2027卒</option>
         <option value="2026">2026卒</option>
-        <option value="2027">2027卒</option>
+        <option value="2028">2028卒</option>
         <option value="その他">その他</option>
       </select>
     </div>
@@ -73,9 +73,9 @@
 </div>
 
 <script>
-  // ★重要1：最新のGASウェブアプリURLをここに貼る
+  // ★重要1：最新のGASウェブアプリURL
   const GAS_URL = "https://script.google.com/macros/s/AKfycbwaBCK6fR_OOMFxMdEs9Axh_TLpLk_3tp7jLZKzTYmPJSv5nmA8t8ewwoXSIZ579GA/exec"; 
-  // ★重要2：LINE DevelopersのLIFF IDをここに貼る
+  // ★重要2：LINE DevelopersのLIFF ID
   const MY_LIFF_ID = "2008904530-lXx8C9i5"; 
 
   // LIFF初期化
@@ -99,9 +99,9 @@
     const submitBtn = document.getElementById('submitBtn');
     const loading = document.getElementById('loading');
     
-    // 必須項目チェック
     const name = document.getElementById('name').value;
     const userId = document.getElementById('userId').value;
+    
     if (!name) { alert("お名前を入力してください"); return; }
     if (!userId) { alert("LINE IDが取得できませんでした。再度開いてください。"); return; }
 
@@ -129,7 +129,7 @@
         body: JSON.stringify(data)
       });
 
-      // LINEにメッセージを自動投稿（これで日程調整が起動する）
+      // LINEにメッセージを自動投稿
       await liff.sendMessages([{
         type: 'text',
         text: 'アンケートの回答を送信しました'

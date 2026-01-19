@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事前アンケート</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <style>
+        body { background-color: #f5f5f5; min-height: 100vh; display: flex; align-items: center; }
+        .box { width: 100%; margin: 10px; border-radius: 8px; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loading-overlay">送信中...</div>
+
+    <div class="container">
+        <div class="box">
+            <h1 class="title is-6 has-text-centered">事前アンケート</h1>
+            <form id="ansForm">
+                <input type="hidden" id="userIdField">
+
+                <div class="field">
+                    <label class="label">お名前</label>
+                    <input class="input" type="text" id="name" placeholder="山田 太郎" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">フリガナ</label>
+                    <input class="input" type="text" id="furigana" placeholder="ヤマダ タロウ" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">大学名</label>
+                    <input class="input" type="text" id="university" required>
+                </div>
+
+                <div class="columns is-mobile">
+                    <div class="column">
+                        <label class="label">学部</label>
+                        <input class="input" type="text" id="gakubu" required>
+                    </div>
+                    <div class="column">
+                        <label class="label">学科</label>
+                        <input class="input" type="text" id="gakka" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">メールアドレス</label>
+                    <input class="input" type="email" id="email" placeholder="example@mail.com" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">電話番号</label>
+                    <input class="input" type="tel" id="tel" placeholder="09012345678" required>
+                </div>
+
+                <div class="field">
+                    <label class="label">卒業年</label>
+                    <div class="select is-fullwidth">
+                        <select id="sotsunen">
+                            <option value="2026">2026年卒</option>
+                            <option value="2027">2027年卒</option>
+                            <option value="2028">2028年卒</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="button is-success is-fullwidth mt-5">
+                    送信して日程調整へ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // --- 設定箇所 ---
+        const LIFF_ID = "YOUR_LIFF_ID"; // LINE Developersで発行されたID
+        const GAS_URL = "YOUR_GAS_WEBAPP_URL"; // GASでデプロイしたURL
+        const REDIRECT_URL = "https://timerex.net/your-link"; // 送信後のリダイレクト先
+        // ----------------
+
+        // 1. LIFFの初期化
+        document.addEventListener("DOMContentLoaded", function() {
+            liff.init({ liffId: LIFF_ID })
+                .then(() => {
+                    if (!liff.isLoggedIn()) {
+                        liff.login();
+                    } else {
+                        // ログイン済みならプロフィール取得
+                        liff.getProfile().then(profile => {
+                            document.getElementById('userIdField').value = profile.userId;
+                        });
+                    }
+                })
+                .catch((err) => {
+                    console.error("LIFF初期化失敗", err);
+                });
+        });
+
+        // 2. 送信処理
+        document.getElementById('ansForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loader');
+            
+            btn.disabled = true;
+            btn.classList.add('is-loading');
+            loader.style.display = 'flex';
+
+            const formData = {
+                userId: document.getElementById('userIdField').value,
+                name: document.getElementById('name').value,
+                furigana: document.getElementById('furigana').value,
+                university: document.getElementById('university').value,
+                gakubu: document.getElementById('gakubu').value,
+                gakka: document.getElementById('gakka').value,
+                email: document.getElementById('email').value,
+                tel: document.getElementById('tel').value,
+                sotsunen: document.getElementById('sotsunen').value
+            };
+
+            // GASへデータを送信
+            fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors', // CORSエラー回避
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                // 送信完了後、日程調整サイトへリダイレクト
+                window.location.href = REDIRECT_URL;
+            })
+            .catch(err => {
+                alert('送信に失敗しました。通信環境を確認してください。');
+                btn.disabled = false;
+                btn.classList.remove('is-loading');
+                loader.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

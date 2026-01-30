@@ -161,7 +161,7 @@
   // ★重要2：LINE DevelopersのLIFF ID
   const MY_LIFF_ID = "2008904530-lXx8C9i5"; 
 
-  // LIFF初期化
+ // LIFF初期化
   window.onload = function() {
     liff.init({ liffId: MY_LIFF_ID })
       .then(() => {
@@ -171,6 +171,16 @@
           const context = liff.getContext();
           if (context && context.userId) {
             document.getElementById('userId').value = context.userId;
+
+            // ★ここを追加：画面が開いた瞬間に発言させる
+            liff.sendMessages([{
+              type: 'text',
+              text: 'アンケート回答を開始します' // 好きな文言に変えてOK
+            }]).then(() => {
+              console.log("開始メッセージ送信成功");
+            }).catch((err) => {
+              console.error("メッセージ送信失敗", err);
+            });
           }
         }
       })

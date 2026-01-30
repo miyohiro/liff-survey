@@ -172,14 +172,13 @@
           if (context && context.userId) {
             document.getElementById('userId').value = context.userId;
 
-            // ★ここを追加：画面が開いた瞬間に発言させる
+            // ★ここでメッセージを飛ばす
             liff.sendMessages([{
               type: 'text',
-              text: 'アンケート回答を開始します' // 好きな文言に変えてOK
-            }]).then(() => {
-              console.log("開始メッセージ送信成功");
-            }).catch((err) => {
-              console.error("メッセージ送信失敗", err);
+              text: 'アンケート回答を開始します'
+            }]).catch(err => {
+              // エラーが出た場合はアラートで教えてくれるようにしておきます
+              alert("メッセージ送信エラー: " + err.message);
             });
           }
         }
